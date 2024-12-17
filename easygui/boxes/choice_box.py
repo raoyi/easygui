@@ -23,7 +23,8 @@ except:
     import tkFont as tk_Font
 
 
-def choicebox(msg="Pick an item", title="", choices=None, preselect=0,
+def choicebox(msg="Pick an item", title="", ok_button="OK", cancel_button="Cancel",
+              choices=None, preselect=0,
               callback=None,
               run=True):
     """
@@ -42,7 +43,7 @@ def choicebox(msg="Pick an item", title="", choices=None, preselect=0,
     :param preselect: Which item, if any are preselected when dialog appears
     :return: A string of the selected choice or None if cancelled
     """
-    mb = ChoiceBox(msg, title, choices, preselect=preselect,
+    mb = ChoiceBox(msg, title, ok_button, cancel_button, choices, preselect=preselect,
                    multiple_select=False,
                    callback=callback)
     if run:
@@ -52,7 +53,8 @@ def choicebox(msg="Pick an item", title="", choices=None, preselect=0,
         return mb
 
 
-def multchoicebox(msg="Pick an item", title="", choices=None,
+def multchoicebox(msg="Pick an item", title="", ok_button="OK", cancel_button="Cancel",
+                  choices=None,
                   preselect=0, callback=None,
                   run=True):
     """
@@ -75,7 +77,7 @@ def multchoicebox(msg="Pick an item", title="", choices=None,
     :param preselect: Which item, if any are preselected when dialog appears
     :return: A list of strings of the selected choices or None if cancelled.
     """
-    mb = ChoiceBox(msg, title, choices, preselect=preselect,
+    mb = ChoiceBox(msg, title, ok_button, cancel_button, choices, preselect=preselect,
                    multiple_select=True,
                    callback=callback)
     if run:
@@ -117,7 +119,7 @@ def make_list_or_none(obj, cast_type=None):
 
 class ChoiceBox(object):
 
-    def __init__(self, msg, title, choices, preselect, multiple_select, callback):
+    def __init__(self, msg, title, ok_button, cancel_button, choices, preselect, multiple_select, callback):
 
         self.callback = callback
 
@@ -131,7 +133,7 @@ class ChoiceBox(object):
         if not multiple_select and len(preselect_list)>1:
             raise ValueError("Multiple selections not allowed, yet preselect has multiple values:{}".format(preselect_list))
 
-        self.ui = GUItk(msg, title, self.choices, preselect_list, multiple_select,
+        self.ui = GUItk(msg, title, ok_button, cancel_button, self.choices, preselect_list, multiple_select,
                         self.callback_ui)
 
     def run(self):
@@ -200,7 +202,7 @@ class GUItk(object):
         It also accepts commands from Multibox to change its message.
     """
 
-    def __init__(self, msg, title, choices, preselect, multiple_select, callback):
+    def __init__(self, msg, title, ok_button, cancel_button, choices, preselect, multiple_select, callback):
 
         self.callback = callback
 
@@ -418,14 +420,14 @@ class GUItk(object):
         self.choiceboxWidget.bind("<Double-Button-1>",
                                   self.ok_pressed)
 
-    def create_ok_button(self):
+    def create_ok_button(self, text=ok_button):
 
         self.buttonsFrame = tk.Frame(self.boxRoot)
         self.buttonsFrame.pack(side=tk.TOP, expand=tk.YES, pady=0)
 
         # put the buttons in the self.buttonsFrame
         okButton = tk.Button(self.buttonsFrame, takefocus=tk.YES,
-                             text="OK", height=1, width=6)
+                             text=ok_button, height=1, width=6)
         bindArrows(okButton)
         okButton.pack(expand=tk.NO, side=tk.RIGHT, padx='2m', pady='1m',
                       ipady="1m", ipadx="2m")
@@ -438,9 +440,9 @@ class GUItk(object):
         for selectionEvent in global_state.STANDARD_SELECTION_EVENTS_MOUSE:
             okButton.bind("<%s>" % selectionEvent, mouse_handlers[selectionEvent])
 
-    def create_cancel_button(self):
+    def create_cancel_button(self, text=cancel_button):
         cancelButton = tk.Button(self.buttonsFrame, takefocus=tk.YES,
-                                 text="Cancel", height=1, width=6)
+                                 text=cancel_button, height=1, width=6)
         bindArrows(cancelButton)
         cancelButton.pack(expand=tk.NO, side=tk.LEFT, padx='2m', pady='1m',
                           ipady="1m", ipadx="2m")
